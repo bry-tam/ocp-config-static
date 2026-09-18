@@ -1,0 +1,14 @@
+---
+# Every directory under kustomize-config/ must be a kustomize Component
+# (never a plain Kustomization) so it can be composed a la carte from any
+# clusters/<name>/kustomization.yaml via its `components:` list. Components
+# never carry `resources:` of their own — they only transform/patch
+# resources supplied by configuration/.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+labels:
+  - pairs:
+      app.kubernetes.io/managed-by: argocd
+      environment: prod
+    includeSelectors: false

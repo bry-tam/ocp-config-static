@@ -1,0 +1,36 @@
+---
+name: Validate
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    branches: [ 'main' ]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  validation-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Verify config validates with kubeconform
+        run: |
+          ./build/validate-kubeconform.sh
+
+      - name: Verify file whitespace
+        run: |
+          ./build/validate-trailing-whitespace.sh
+
+      - name: Verify yaml starts with doc separator
+        run: |
+          ./build/validate-yaml-doc.sh
+
+      - name: Verify file ends in newline
+        run: |
+          ./build/validate-end-of-file.sh

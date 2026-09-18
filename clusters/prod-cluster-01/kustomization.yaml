@@ -1,0 +1,13 @@
+---
+# GitOps entrypoint for prod-cluster-01. This is the `source.path` referenced
+# by bootstrap/root-application.yaml. Running `kustomize build` here must
+# produce the final resources directly -- no nested Application/ApplicationSet
+# objects and no Helm chart, per this repo's "just kustomize" design.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../configuration/operators/gitops-operator
+
+components:
+  - ../../kustomize-config/common-labels

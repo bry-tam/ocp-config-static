@@ -1,0 +1,30 @@
+---
+# This is the ONE manifest in this repo that is not synced by ArgoCD itself.
+# ArgoCD can't sync the Application object that creates it (chicken/egg), so
+# apply it manually, once, after the OpenShift GitOps Operator is installed:
+#
+#   oc apply -f bootstrap/root-application.yaml
+#
+# From then on, ArgoCD watches clusters/prod-cluster-01 and manages everything
+# else in this repo (including itself, via configuration/operators/gitops-operator).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prod-cluster-01
+  namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/bry-tam/ocp-config-static.git
+    targetRevision: main
+    path: clusters/prod-cluster-01
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

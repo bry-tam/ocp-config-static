@@ -1,0 +1,9 @@
+---
+# Example group referenced by the ArgoCD `rbac.policy` in argocd-instance.yaml.
+# Membership would be managed by your identity provider in a real cluster;
+# this is just a placeholder to show the intended wiring.
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: cluster-admins
+users: []
