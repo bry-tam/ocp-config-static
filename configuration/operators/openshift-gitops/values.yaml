@@ -1,0 +1,32 @@
+---
+# Default values for the openshift-gitops chart. Override per-consumer via a
+# `valuesFile:`/`valuesInline:` on the `helmCharts:` entry that inflates this
+# chart (e.g. clusters/prod-cluster-01/kustomization.yaml) -- most commonly
+# to pin a different `subscription.channel` for a given cluster/environment.
+subscription:
+  name: openshift-gitops-operator
+  # Dedicated operator namespace (paired with an OperatorGroup in
+  # templates/operatorgroup.yaml) rather than the shared
+  # `openshift-operators` namespace -- matches the manual/GitOps install
+  # path documented for the OpenShift GitOps Operator.
+  namespace: openshift-gitops-operator
+  channel: latest
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+
+argocd:
+  name: openshift-gitops
+  namespace: openshift-gitops
+  # Route host for the ConsoleLink (templates/consolelink.yaml). Can't be
+  # derived automatically: `kustomize build --enable-helm` shells out to
+  # `helm template` (no live-cluster connection), so Helm's `lookup`
+  # function always returns empty here -- unlike an ACM hub-templated
+  # policy, which can `lookup` the Route at reconcile time. Must be set
+  # per-cluster via valuesFile/valuesInline once the cluster's apps domain
+  # is known (e.g. openshift-gitops-server-openshift-gitops.apps.<cluster
+  # domain>).
+  routeHost: ""
+
+rbac:
+  adminGroup: cluster-admins

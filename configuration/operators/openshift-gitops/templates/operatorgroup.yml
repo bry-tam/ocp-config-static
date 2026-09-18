@@ -1,0 +1,11 @@
+---
+# Required for OLM to accept the Subscription in subscription.yaml -- every
+# namespace a Subscription is created in must already have an OperatorGroup.
+# No `spec.targetNamespaces` -- AllNamespaces install mode, which is what the
+# OpenShift GitOps Operator requires (it isn't a namespace-scoped operator).
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ .Values.subscription.name }}
+  namespace: {{ .Values.subscription.namespace }}
+spec: {}

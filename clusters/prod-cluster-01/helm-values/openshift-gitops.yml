@@ -1,0 +1,7 @@
+---
+# Per-cluster override for the configuration/operators/openshift-gitops
+# chart, referenced via `valuesFile:` on the `helmCharts:` entry in
+# ../kustomization.yaml. Only values that differ from the chart's own
+# values.yaml defaults need to be listed here.
+subscription:
+  channel: gitops-1.21

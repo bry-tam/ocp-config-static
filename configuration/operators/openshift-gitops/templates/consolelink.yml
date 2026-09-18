@@ -1,0 +1,21 @@
+---
+# Adds this ArgoCD instance to the OpenShift web console's Application menu.
+# `.Values.argocd.routeHost` must be set per-cluster (see values.yaml) --
+# unlike the ACM hub-templated reference this is based on, plain
+# `helm template` (what `kustomize build --enable-helm` shells out to) has
+# no live-cluster connection, so the Route host can't be resolved via
+# Helm's `lookup` at render time.
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  # Cluster-scoped resource -- no namespace (the reference config's rendered
+  # `namespace: openshift-gitops` on this object is a harmless no-op left
+  # over from its kustomization applying a blanket `namespace:` transformer
+  # to every resource; the API server ignores it here).
+  name: {{ .Values.argocd.name }}
+spec:
+  location: ApplicationMenu
+  applicationMenu:
+    section: OpenShift GitOps
+  text: Cluster GitOps
+  href: https://{{ .Values.argocd.routeHost }}

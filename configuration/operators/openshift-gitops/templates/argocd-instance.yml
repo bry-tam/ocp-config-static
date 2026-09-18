@@ -1,0 +1,137 @@
+---
+# Customizes the ArgoCD instance that the OpenShift GitOps Operator creates by
+# default in the openshift-gitops namespace (see subscription.yaml for the
+# operator install itself). Spec content below matches the config evaluated
+# from `kustomize build` on
+# acm-policy-samples/policies/operators/gitops/argocd-instances/default
+# (apiVersion bumped to v1beta1 to match that reference) -- resource
+# sizing, HA, monitoring/notifications, dex SSO, and the Tekton
+# resourceExclusions are all carried over as-is; only metadata.name/
+# .namespace and the rbac policy's admin group are templated.
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: {{ .Values.argocd.name }}
+  namespace: {{ .Values.argocd.namespace }}
+spec:
+  aggregatedClusterRoles: true
+  resourceTrackingMethod: annotation
+  disableAdmin: true
+  helpChatURL: https://cloud-native.slack.com/archives/C01TSERG0KZ
+  initialSSHKnownHosts: {}
+  resourceExclusions: |
+    - apiGroups:
+      - tekton.dev
+      clusters:
+      - '*'
+      kinds:
+      - TaskRun
+      - PipelineRun
+  rbac:
+    defaultPolicy: readonly
+    policy: |
+      g, {{ .Values.rbac.adminGroup }}, role:admin
+    scopes: '[groups]'
+  server:
+    route:
+      enabled: true
+    service:
+      type: ""
+    autoscale:
+      enabled: true
+    ingress:
+      enabled: false
+    grpc:
+      ingress:
+        enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 125m
+        memory: 128Mi
+  controller:
+    processors: {}
+    sharding: {}
+    resources:
+      limits:
+        cpu: "2"
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 1Gi
+  repo:
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+  redis:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  applicationSet:
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    webhookServer:
+      ingress:
+        enabled: false
+      route:
+        enabled: false
+  ha:
+    enabled: true
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  grafana:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  prometheus:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+  monitoring:
+    enabled: true
+  notifications:
+    enabled: true
+  sso:
+    provider: dex
+    dex:
+      openShiftOAuth: true
+      resources:
+        limits:
+          cpu: 500m
+          memory: 256Mi
+        requests:
+          cpu: 250m
+          memory: 128Mi
+  tls:
+    ca: {}

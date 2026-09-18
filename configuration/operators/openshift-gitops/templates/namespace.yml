@@ -1,0 +1,26 @@
+---
+# Both namespaces used by this chart: the dedicated operator-install
+# namespace (paired with the OperatorGroup in operatorgroup.yaml) and the
+# namespace the operator's ArgoCD instance runs in. Labels match the
+# reference config evaluated from
+# acm-policy-samples/policies/operators/gitops/{operator-ns,argocd-ns}.yml:
+# `openshift.io/cluster-monitoring` opts the namespace into OpenShift's
+# user-workload/cluster monitoring stack; `argocd.argoproj.io/managed-by`
+# tells the ArgoCD instance in argocd.namespace to manage resources deployed
+# into this namespace (required for the operator's own namespace so its
+# Subscription/OperatorGroup are visible to ArgoCD's health/sync views).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.subscription.namespace }}
+  labels:
+    openshift.io/cluster-monitoring: "true"
+    argocd.argoproj.io/managed-by: {{ .Values.argocd.name }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.argocd.namespace }}
+  labels:
+    openshift.io/cluster-monitoring: "true"
+    argocd.argoproj.io/managed-by: {{ .Values.argocd.name }}

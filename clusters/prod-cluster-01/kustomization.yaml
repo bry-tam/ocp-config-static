@@ -2,12 +2,35 @@
 # GitOps entrypoint for prod-cluster-01. This is the `source.path` referenced
 # by bootstrap/root-application.yaml. Running `kustomize build` here must
 # produce the final resources directly -- no nested Application/ApplicationSet
-# objects and no Helm chart, per this repo's "just kustomize" design.
+# objects and no app-of-apps, per this repo's "just kustomize" design.
+#
+# `helmCharts:` inflates local Helm-chart components directly (the chart
+# itself lives at configuration/<category>/<name>/ -- no `charts/` wrapper
+# dir, no `repo:`). Declaring it here, at the cluster level, is what lets a
+# per-cluster `valuesInline:`/`valuesFile:` override chart values (e.g.
+# `subscription.channel`) for this specific cluster. `chartHome` is relative
+# to this file and currently covers the `operators/` category; a chart added
+# under a different category would need its own chartHome (e.g. via a
+# nested kustomization).
+#
+# `helm-values/<chart-name>.yml` holds this cluster's per-chart overrides,
+# referenced via `valuesFile:` below (relative to this file). Add one file
+# per Helm-chart component that needs a non-default value here.
+#
+# Rendering requires `kustomize build --enable-helm --load-restrictor
+# LoadRestrictionsNone` (the latter because the chart lives outside this
+# kustomization's own directory tree) -- see build/validate-kubeconform.sh.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-resources:
-  - ../../configuration/operators/gitops-operator
+helmGlobals:
+  chartHome: ../../configuration/operators
+
+helmCharts:
+  - name: openshift-gitops
+    releaseName: openshift-gitops
+    namespace: openshift-gitops
+    valuesFile: helm-values/openshift-gitops.yml
 
 components:
   - ../../kustomize-config/common-labels

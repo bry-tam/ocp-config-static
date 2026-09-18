@@ -1,0 +1,50 @@
+---
+# `argo-admin-controller` is labeled `rbac.authorization.k8s.io/
+# aggregate-to-admin: "true"`, which Kubernetes' built-in aggregation
+# mechanism automatically merges into the cluster's default `admin`
+# ClusterRole -- granting namespace/OperatorGroup/ClusterRole(Binding)
+# management permissions to anyone bound to `admin`
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argo-admin-controller
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - "*"
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - operatorgroups
+    verbs:
+      - "*"
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+      - clusterrolebindings
+    verbs:
+      - "*"
+
+---
+# Second aggregation layer: rolls up anything labeled
+# `rbac.authorization.k8s.io/aggregate-to-admin: "true"` (including the
+# ClusterRole above) into a role named after this ArgoCD instance, so it can
+# be bound directly instead of relying solely on the cluster's built-in
+# `admin` ClusterRole picking up the aggregation.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.argocd.name }}-controller-admin
+  labels:
+    argocd/aggregate-to-admin: "true"
+    app.kubernetes.io/managed-by: {{ .Values.argocd.name }}
+aggregationRule:
+  clusterRoleSelectors:
+    - matchLabels:
+        rbac.authorization.k8s.io/aggregate-to-admin: "true"

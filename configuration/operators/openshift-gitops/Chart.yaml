@@ -1,0 +1,10 @@
+---
+apiVersion: v2
+name: openshift-gitops
+description: >-
+  Installs/configures the Red Hat OpenShift GitOps Operator: its OLM
+  Subscription (channel parameterized), the ArgoCD instance it manages, and
+  supporting RBAC.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

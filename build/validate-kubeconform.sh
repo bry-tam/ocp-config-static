@@ -7,11 +7,19 @@
 # ArgoCD's Application. Types present in neither (e.g. OpenShift/operator
 # CRs not published to CRDs-catalog, like the GitOps Operator's own ArgoCD
 # CR) are skipped rather than failed -- see -ignore-missing-schemas below.
+#
+# `--enable-helm` is required because clusters/<name>/kustomization.yaml
+# declares `helmCharts:` to inflate local Helm-chart components directly
+# (e.g. configuration/operators/openshift-gitops) -- this shells out to a
+# real `helm` binary. `--load-restrictor LoadRestrictionsNone` is required
+# alongside it because those charts live outside the cluster kustomization's
+# own directory tree.
 
 set -euo pipefail
 
 KUSTOMIZE_VERSION="5.8.1"
 KUBECONFORM_VERSION="v0.8.0"
+HELM_VERSION="3.22.0"
 
 BIN_DIR="$(mktemp -d)"
 trap 'rm -rf "${BIN_DIR}"' EXIT
@@ -29,13 +37,19 @@ if ! command -v kubeconform >/dev/null 2>&1; then
     | tar -xz -C "${BIN_DIR}"
 fi
 
+if ! command -v helm >/dev/null 2>&1; then
+  echo "Installing helm ${HELM_VERSION}..."
+  curl -sL "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz" \
+    | tar -xz -C "${BIN_DIR}" --strip-components=1 linux-amd64/helm
+fi
+
 eCode=0
 
 for cluster_dir in clusters/*/; do
   cluster_name="$(basename "${cluster_dir}")"
   echo "== Validating ${cluster_name} =="
 
-  if ! kustomize build "${cluster_dir}" | kubeconform \
+  if ! kustomize build --enable-helm --load-restrictor LoadRestrictionsNone "${cluster_dir}" | kubeconform \
       -summary \
       -strict \
       -schema-location default \
