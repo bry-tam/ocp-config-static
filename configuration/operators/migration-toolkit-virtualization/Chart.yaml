@@ -1,0 +1,10 @@
+---
+apiVersion: v2
+name: migration-toolkit-virtualization
+description: >-
+  Installs the Migration Toolkit for Virtualization (MTV) Operator and
+  configures the ForkliftController instance it manages, enabling VM
+  migration from external hypervisors to OpenShift Virtualization.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -1,0 +1,21 @@
+---
+# KubeDescheduler CR. `evictionLimits` are static values here (see
+# values.yaml comment) -- the ACM reference this was evaluated from derives
+# them dynamically via a hub `lookup` against the virtualization chart's
+# HyperConverged CR, which isn't possible in plain `helm template`.
+apiVersion: operator.openshift.io/v1
+kind: KubeDescheduler
+metadata:
+  name: cluster
+  namespace: {{ .Values.subscription.namespace }}
+spec:
+  managementState: {{ .Values.descheduler.managementState }}
+  mode: {{ .Values.descheduler.mode }}
+  deschedulingIntervalSeconds: {{ .Values.descheduler.deschedulingIntervalSeconds }}
+  profiles:
+    {{- range .Values.descheduler.profiles }}
+    - {{ . }}
+    {{- end }}
+  evictionLimits:
+    total: {{ .Values.descheduler.evictionLimits.total }}
+    node: {{ .Values.descheduler.evictionLimits.node }}

@@ -1,0 +1,11 @@
+---
+# Cluster-scoped NMState CR -- required to deploy the operator's handler
+# DaemonSet, webhook, and metrics resources.
+apiVersion: nmstate.io/v1
+kind: NMState
+metadata:
+  name: {{ .Values.nmstate.name }}
+spec:
+  probeConfiguration:
+    dns:
+      host: {{ .Values.nmstate.probeConfiguration.dns.host }}

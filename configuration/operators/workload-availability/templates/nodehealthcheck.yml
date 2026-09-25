@@ -1,0 +1,48 @@
+---
+# Example NodeHealthCheck triggering the configured remediation strategy
+# (.Values.remediation.strategy: "snr" or "far") against worker nodes,
+# escalating to Machine Deletion Remediation if the first remediation step
+# doesn't recover the node in time.
+apiVersion: remediation.medik8s.io/v1alpha1
+kind: NodeHealthCheck
+metadata:
+  name: nodehealthcheck-{{ .Values.remediation.strategy }}
+spec:
+  unhealthyConditions:
+    - duration: {{ .Values.remediation.nodeHealthCheck.unhealthyDuration }}
+      status: 'False'
+      type: Ready
+    - duration: {{ .Values.remediation.nodeHealthCheck.unhealthyDuration }}
+      status: Unknown
+      type: Ready
+  minHealthy: {{ .Values.remediation.nodeHealthCheck.minHealthy }}
+  selector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/worker
+        operator: Exists
+        values: []
+  escalatingRemediations:
+{{- if eq .Values.remediation.strategy "snr" }}
+    - remediationTemplate:
+        apiVersion: self-node-remediation.medik8s.io/v1alpha1
+        kind: SelfNodeRemediationTemplate
+        name: snr-outofservicetaint-template
+        namespace: {{ .Values.namespace }}
+      order: 0
+      timeout: {{ .Values.remediation.nodeHealthCheck.escalationTimeout }}
+{{- else if eq .Values.remediation.strategy "far" }}
+    - remediationTemplate:
+        apiVersion: fence-agents-remediation.medik8s.io/v1alpha1
+        kind: FenceAgentsRemediationTemplate
+        name: far-outofservicetaint-template
+        namespace: {{ .Values.namespace }}
+      order: 0
+      timeout: {{ .Values.remediation.nodeHealthCheck.escalationTimeout }}
+{{- end }}
+    - remediationTemplate:
+        apiVersion: machine-deletion-remediation.medik8s.io/v1alpha1
+        kind: MachineDeletionRemediationTemplate
+        name: mdr-remediation
+        namespace: {{ .Values.namespace }}
+      order: 1
+      timeout: {{ .Values.remediation.nodeHealthCheck.escalationTimeout }}

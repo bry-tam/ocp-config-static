@@ -1,0 +1,60 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.subscriptions.fenceAgentsRemediation.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  channel: {{ .Values.subscriptions.fenceAgentsRemediation.channel }}
+  name: {{ .Values.subscriptions.fenceAgentsRemediation.name }}
+  source: {{ .Values.subscriptions.source }}
+  sourceNamespace: {{ .Values.subscriptions.sourceNamespace }}
+  installPlanApproval: {{ .Values.subscriptions.installPlanApproval }}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.subscriptions.selfNodeRemediation.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  channel: {{ .Values.subscriptions.selfNodeRemediation.channel }}
+  name: {{ .Values.subscriptions.selfNodeRemediation.name }}
+  source: {{ .Values.subscriptions.source }}
+  sourceNamespace: {{ .Values.subscriptions.sourceNamespace }}
+  installPlanApproval: {{ .Values.subscriptions.installPlanApproval }}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.subscriptions.nodeHealthCheck.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  channel: {{ .Values.subscriptions.nodeHealthCheck.channel }}
+  name: {{ .Values.subscriptions.nodeHealthCheck.name }}
+  source: {{ .Values.subscriptions.source }}
+  sourceNamespace: {{ .Values.subscriptions.sourceNamespace }}
+  installPlanApproval: {{ .Values.subscriptions.installPlanApproval }}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.subscriptions.nodeMaintenance.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  channel: {{ .Values.subscriptions.nodeMaintenance.channel }}
+  name: {{ .Values.subscriptions.nodeMaintenance.name }}
+  source: {{ .Values.subscriptions.source }}
+  sourceNamespace: {{ .Values.subscriptions.sourceNamespace }}
+  installPlanApproval: {{ .Values.subscriptions.installPlanApproval }}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.subscriptions.machineDeletionRemediation.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  channel: {{ .Values.subscriptions.machineDeletionRemediation.channel }}
+  name: {{ .Values.subscriptions.machineDeletionRemediation.name }}
+  source: {{ .Values.subscriptions.source }}
+  sourceNamespace: {{ .Values.subscriptions.sourceNamespace }}
+  installPlanApproval: {{ .Values.subscriptions.installPlanApproval }}

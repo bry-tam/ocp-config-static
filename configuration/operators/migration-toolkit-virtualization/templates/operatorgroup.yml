@@ -1,0 +1,11 @@
+---
+# Namespace-scoped install, matching the reference OperatorPolicy's
+# operatorGroup.targetNamespaces.
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ .Values.subscription.namespace }}
+  namespace: {{ .Values.subscription.namespace }}
+spec:
+  targetNamespaces:
+    - {{ .Values.subscription.namespace }}

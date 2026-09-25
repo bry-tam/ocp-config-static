@@ -1,0 +1,9 @@
+---
+apiVersion: v2
+name: nmstate
+description: >-
+  Installs the Kubernetes NMState Operator and configures the NMState
+  instance it manages, enabling declarative node network configuration.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

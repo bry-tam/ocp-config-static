@@ -1,0 +1,24 @@
+---
+# HyperConverged CR, created once the operator's CRDs are registered.
+#
+# Live migration limits here are also consulted by the descheduler chart's
+# KubeDescheduler eviction limits (configuration/operators/descheduler). If
+# you change parallelMigrationsPerCluster/parallelOutboundMigrationsPerNode
+# here, update descheduler's values.yaml to match -- the ACM reference this
+# was evaluated from derives them dynamically via a hub `lookup` against
+# this CR, which isn't possible in plain `helm template` (no live-cluster
+# connection).
+apiVersion: hco.kubevirt.io/v1beta1
+kind: HyperConverged
+metadata:
+  name: {{ .Values.hyperConverged.name }}
+  namespace: {{ .Values.subscription.namespace }}
+spec:
+  liveMigrationConfig:
+    completionTimeoutPerGiB: {{ .Values.hyperConverged.liveMigration.completionTimeoutPerGiB }}
+    {{- if .Values.hyperConverged.liveMigration.network }}
+    network: {{ .Values.hyperConverged.liveMigration.network }}
+    {{- end }}
+    parallelMigrationsPerCluster: {{ .Values.hyperConverged.liveMigration.parallelMigrationsPerCluster }}
+    parallelOutboundMigrationsPerNode: {{ .Values.hyperConverged.liveMigration.parallelOutboundMigrationsPerNode }}
+    progressTimeout: {{ .Values.hyperConverged.liveMigration.progressTimeout }}

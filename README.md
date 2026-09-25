@@ -49,12 +49,15 @@ All YAML files use the `.yml` extension, except `kustomization.yaml` (kept
   either a plain kustomize `Kustomization` holding base manifests, or a local
   Helm chart (the `<component>/` directory itself *is* the chart — `Chart.yaml`,
   `values.yaml`, `templates/` — no `charts/` wrapper subdirectory). Components
-  here never derive from anything else — they're leaf bases. The one example
-  today is `configuration/operators/openshift-gitops/`, a local Helm chart
-  that installs the OpenShift GitOps Operator (its OLM `Subscription`, with
-  `subscription.channel` parameterized via the chart's `values.yaml`), the
-  operator's own Argo CD instance (the `ArgoCD` custom resource), and related
-  RBAC.
+  here never derive from anything else — they're leaf bases. All examples
+  today are local Helm charts under `configuration/operators/`:
+  `openshift-gitops`, `descheduler`, `nmstate`,
+  `migration-toolkit-virtualization`, `virtualization`, and
+  `workload-availability`. Each installs its operator's OLM `Subscription`
+  (with fields like `subscription.channel` parameterized via the chart's
+  `values.yaml`) plus the operator's own custom resource(s) and any related
+  supporting manifests (`Namespace`, `OperatorGroup`, RBAC). See each
+  component's `README.md` for specifics.
 
   Helm-chart components are inflated from the *cluster* level, not the
   component level: a `clusters/<cluster_name>/kustomization.yaml` declares
@@ -126,6 +129,35 @@ Create `configuration/<category>/<component>/` as either:
 
 Reuse an existing category (e.g. `operators/`) or introduce a new one (e.g.
 `monitoring/`, `ingress/`) if it doesn't fit an existing category.
+
+### Component README requirement
+
+Every `configuration/<category>/<component>/` must have a `README.md`,
+following the same format the `acm-policy-samples` repo requires for its
+policies (`docs/policy-prerequisites.md` rule 5 there):
+
+```markdown
+#  COMPONENT NAME
+Brief description of the component.
+
+## Dependencies
+- A list of other components this one depends on (or `- None`)
+
+## Details
+Minimum OpenShift Version: 4.x
+
+Documentation: [LINK to DOCS](https://docs.example.com)
+
+---
+**Notes:**
+  - Additional implementation notes
+```
+
+`Minimum OpenShift Version` replaces `acm-policy-samples`'s `ACM Minimal
+Version` field, since this repo has no ACM hub. An optional
+`## Implementation Details` section may follow for anything not obvious
+from the manifests themselves (e.g. why a CR is shaped the way it is, or
+what depends on install ordering).
 
 ## Adding a new kustomize-config component
 

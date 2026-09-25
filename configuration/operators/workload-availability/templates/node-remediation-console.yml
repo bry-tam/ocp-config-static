@@ -1,0 +1,19 @@
+---
+{{- if .Values.consolePlugin.enabled }}
+# Enables the Node Remediation console plugin, provided by the Node
+# Health Check Operator. NOTE: this is a full-object apply against the
+# cluster-scoped `Console` singleton (name: cluster) that already exists on
+# every OpenShift cluster -- applying it here will overwrite
+# `spec.plugins` with just this one entry, dropping any other console
+# plugins already enabled on the cluster (e.g. by other operators). Ok for
+# a lone example cluster; on a real cluster prefer a JSON6902/strategic
+# merge patch against the existing Console object instead of a full
+# resource here, or manage `spec.plugins` centrally.
+apiVersion: operator.openshift.io/v1
+kind: Console
+metadata:
+  name: cluster
+spec:
+  plugins:
+    - node-remediation-console-plugin
+{{- end }}

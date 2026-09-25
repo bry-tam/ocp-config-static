@@ -1,0 +1,10 @@
+---
+# Reference: acm-policy-samples/policies/operators/virtualization/namespace.yml
+# `openshift.io/cluster-monitoring` opts the namespace into OpenShift's
+# monitoring stack so virtualization metrics are scraped by Prometheus.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.subscription.namespace }}
+  labels:
+    openshift.io/cluster-monitoring: "true"

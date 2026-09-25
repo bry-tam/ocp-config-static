@@ -1,0 +1,16 @@
+---
+# Default values for the migration-toolkit-virtualization chart. Override
+# per-cluster via a `valuesFile:`/`valuesInline:` on the `helmCharts:` entry
+# that inflates this chart.
+subscription:
+  name: mtv-operator
+  namespace: openshift-mtv
+  channel: release-v2.12
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+
+forkliftController:
+  name: forklift-controller
+  olmManaged: true
+  featureCopyOffload: true

@@ -1,0 +1,44 @@
+---
+# Default values for the workload-availability chart. Override per-cluster
+# via a `valuesFile:`/`valuesInline:` on the `helmCharts:` entry that
+# inflates this chart.
+namespace: openshift-workload-availability
+
+subscriptions:
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+  fenceAgentsRemediation:
+    name: fence-agents-remediation
+    channel: stable
+  selfNodeRemediation:
+    name: self-node-remediation
+    channel: stable
+  nodeHealthCheck:
+    name: node-healthcheck-operator
+    channel: stable
+  nodeMaintenance:
+    name: node-maintenance-operator
+    channel: stable
+  machineDeletionRemediation:
+    name: machine-deletion-remediation
+    channel: stable
+
+# Remediation strategy for unhealthy nodes: "snr" (Self Node Remediation,
+# default) or "far" (Fence Agents Remediation). Mutually exclusive --
+# changing this switches which NodeHealthCheck escalation step + remediation
+# template render. Machine Deletion Remediation always runs as the final
+# escalation step in either case, to recreate the Machine/node.
+remediation:
+  strategy: snr
+  nodeHealthCheck:
+    unhealthyDuration: 90s
+    minHealthy: "51%"
+    escalationTimeout: 300s
+
+# The Node Remediation console plugin, provided by the Node Health Check
+# Operator. See templates/node-remediation-console.yml for why this
+# defaults to true but is a real risk on a cluster with other console
+# plugins already enabled.
+consolePlugin:
+  enabled: true

@@ -1,0 +1,9 @@
+---
+apiVersion: v2
+name: virtualization
+description: >-
+  Installs the OpenShift Virtualization Operator (CNV) and configures the
+  HyperConverged instance it manages, including live migration limits.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

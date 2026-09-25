@@ -1,0 +1,9 @@
+---
+apiVersion: forklift.konveyor.io/v1beta1
+kind: ForkliftController
+metadata:
+  name: {{ .Values.forkliftController.name }}
+  namespace: {{ .Values.subscription.namespace }}
+spec:
+  olm_managed: {{ .Values.forkliftController.olmManaged }}
+  feature_copy_offload: {{ .Values.forkliftController.featureCopyOffload }}

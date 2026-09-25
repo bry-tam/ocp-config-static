@@ -1,0 +1,13 @@
+---
+# Single shared OperatorGroup for all 5 operators co-located in this
+# namespace. No `spec.targetNamespaces` -- AllNamespaces install mode. The
+# reference OperatorPolicies for this bundle each omit an explicit
+# operatorGroup block entirely, which is ACM's own default behavior when
+# none is given; only one OperatorGroup should exist per namespace, so it's
+# defined once here rather than once per operator.
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+spec: {}

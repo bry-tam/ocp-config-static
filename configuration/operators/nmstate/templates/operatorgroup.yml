@@ -1,0 +1,10 @@
+---
+# No `spec.targetNamespaces` -- AllNamespaces install mode, matching the
+# reference config's OperatorPolicy.operatorGroup (which omits
+# targetNamespaces for this operator).
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ .Values.subscription.namespace }}
+  namespace: {{ .Values.subscription.namespace }}
+spec: {}

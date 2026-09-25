@@ -1,0 +1,11 @@
+---
+apiVersion: v2
+name: workload-availability
+description: >-
+  Installs the Workload Availability operator bundle (Fence Agents
+  Remediation, Self Node Remediation, Node Health Check, Node Maintenance,
+  Machine Deletion Remediation) into a single namespace and configures an
+  example NodeHealthCheck and remediation templates.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -1,0 +1,14 @@
+---
+{{- if .Values.workerKernelArgs.enabled }}
+# Cluster-scoped; enables Pressure Stall Information (PSI) metrics required
+# by the CPU/PSI-utilization-aware descheduler profiles.
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 99-worker-psi-kernelarg
+  labels:
+    machineconfiguration.openshift.io/role: worker
+spec:
+  kernelArguments:
+    - psi=1
+{{- end }}

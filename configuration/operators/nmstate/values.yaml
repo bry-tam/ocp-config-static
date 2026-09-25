@@ -1,0 +1,17 @@
+---
+# Default values for the nmstate chart. Override per-cluster via a
+# `valuesFile:`/`valuesInline:` on the `helmCharts:` entry that inflates this
+# chart.
+subscription:
+  name: kubernetes-nmstate-operator
+  namespace: openshift-nmstate
+  channel: stable
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+
+nmstate:
+  name: nmstate
+  probeConfiguration:
+    dns:
+      host: root-servers.net

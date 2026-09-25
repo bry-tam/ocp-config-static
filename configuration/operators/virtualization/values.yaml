@@ -1,0 +1,23 @@
+---
+# Default values for the virtualization chart. Override per-cluster via a
+# `valuesFile:`/`valuesInline:` on the `helmCharts:` entry that inflates this
+# chart.
+subscription:
+  name: kubevirt-hyperconverged
+  namespace: openshift-cnv
+  channel: stable
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+
+hyperConverged:
+  name: kubevirt-hyperconverged
+  liveMigration:
+    completionTimeoutPerGiB: 800
+    parallelMigrationsPerCluster: 5
+    parallelOutboundMigrationsPerNode: 2
+    progressTimeout: 150
+    # Dedicated migration network interface (e.g. "bond3.999"), hardware
+    # specific. Leave empty to use the default pod network for migration
+    # traffic.
+    network: ""

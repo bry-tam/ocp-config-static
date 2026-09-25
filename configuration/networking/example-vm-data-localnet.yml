@@ -1,0 +1,111 @@
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: vm-bridge-worker01
+spec:
+  desiredState:
+    interfaces:
+      - identifier: mac-address
+        mac-address: 00:50:56:b1:b2:01
+        mtu: 1500
+        name: port1
+        state: up
+        type: ethernet
+      - bridge:
+          allow-extra-patch-ports: true
+          options:
+            stp: false
+          port:
+            - name: port1
+        name: br-vm-data
+        state: up
+        type: ovs-bridge
+  nodeSelector:
+    kubernetes.io/hostname: worker01
+
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: localnet-vm-data-vlan200
+spec:
+  desiredState:
+    ovn:
+      bridge-mappings:
+        - bridge: br-vm-data
+          localnet: localnet-vm-data-vlan200
+          state: up
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+
+---
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: localnet-vm-data-novlan
+spec:
+  desiredState:
+    ovn:
+      bridge-mappings:
+        - bridge: br-vm-data
+          localnet: localnet-vm-data-novlan
+          state: up
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+
+---
+apiVersion: k8s.ovn.org/v1
+kind: ClusterUserDefinedNetwork
+metadata:
+  name: example-local-novlan
+spec:
+  namespaceSelector:
+    matchLabels:
+      cudn-vmdata-vlan: example-novlan
+  network:
+    localnet:
+      ipam:
+        mode: Disabled
+      mtu: 1500
+      physicalNetworkName: localnet-vm-data-novlan
+      role: Secondary
+    topology: Localnet
+
+---
+apiVersion: k8s.ovn.org/v1
+kind: ClusterUserDefinedNetwork
+metadata:
+  name: example-vlan-200
+spec:
+  namespaceSelector:
+    matchLabels:
+      cudn-vmdata-vlan: example-vlan-200
+  network:
+    localnet:
+      ipam:
+        mode: Disabled
+      mtu: 1500
+      physicalNetworkName: localnet-vm-data-vlan200
+      role: Secondary
+      vlan:
+        access:
+          id: 200
+        mode: Access
+    topology: Localnet
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    cudn-vmdata-vlan: example-vlan-200
+  name: example-vm-vlan200
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    cudn-vmdata-vlan: example-novlan
+  name: example-vm-novlan

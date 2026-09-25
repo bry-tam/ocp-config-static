@@ -1,0 +1,34 @@
+---
+# Default values for the descheduler chart. Override per-cluster via a
+# `valuesFile:`/`valuesInline:` on the `helmCharts:` entry that inflates this
+# chart.
+subscription:
+  name: cluster-kube-descheduler-operator
+  namespace: openshift-kube-descheduler-operator
+  channel: stable
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+
+descheduler:
+  managementState: Managed
+  mode: Automatic
+  deschedulingIntervalSeconds: 3600
+  profiles:
+    - KubeVirtRelieveAndMigrate
+  # Mirrors the virtualization chart's HyperConverged
+  # liveMigrationConfig.parallelMigrationsPerCluster/
+  # parallelOutboundMigrationsPerNode (configuration/operators/virtualization)
+  # -- keep these two charts' values in sync. These also happen to be
+  # KubeVirt's own built-in defaults.
+  evictionLimits:
+    total: 5
+    node: 2
+
+# Adds the `psi=1` kernel argument to worker nodes, required for the
+# CPU/PSI-utilization-aware descheduler profiles
+# (DevKubeVirtRelieveAndMigrate). Harmless with the plain
+# KubeVirtRelieveAndMigrate profile above; kept enabled by default to match
+# the reference config and allow switching profiles without a reboot cycle.
+workerKernelArgs:
+  enabled: true

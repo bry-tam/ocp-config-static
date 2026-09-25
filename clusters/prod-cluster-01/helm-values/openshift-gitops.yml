@@ -5,3 +5,6 @@
 # values.yaml defaults need to be listed here.
 subscription:
   channel: gitops-1.21
+
+argocd:
+  routeHost: openshift-gitops-server-openshift-gitops.apps.acm.sandbox5552.opentlc.com

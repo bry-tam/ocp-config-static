@@ -32,5 +32,25 @@ helmCharts:
     namespace: openshift-gitops
     valuesFile: helm-values/openshift-gitops.yml
 
+  - name: descheduler
+    releaseName: descheduler
+    namespace: openshift-kube-descheduler-operator
+
+  - name: nmstate
+    releaseName: nmstate
+    namespace: openshift-nmstate
+
+  - name: migration-toolkit-virtualization
+    releaseName: migration-toolkit-virtualization
+    namespace: openshift-mtv
+
+  - name: virtualization
+    releaseName: virtualization
+    namespace: openshift-cnv
+
+  - name: workload-availability
+    releaseName: workload-availability
+    namespace: openshift-workload-availability
+
 components:
   - ../../kustomize-config/common-labels
