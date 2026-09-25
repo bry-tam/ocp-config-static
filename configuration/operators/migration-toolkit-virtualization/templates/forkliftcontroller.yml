@@ -6,4 +6,7 @@ metadata:
   namespace: {{ .Values.subscription.namespace }}
 spec:
   olm_managed: {{ .Values.forkliftController.olmManaged }}
-  feature_copy_offload: {{ .Values.forkliftController.featureCopyOffload }}
+  # The ForkliftController CRD types this field as a string enum ("true"/
+  # "false"), not a real boolean -- quote is required or the API server
+  # rejects the CR with "must be of type string: boolean".
+  feature_copy_offload: {{ .Values.forkliftController.featureCopyOffload | quote }}
