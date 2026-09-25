@@ -17,6 +17,13 @@ spec:
   aggregatedClusterRoles: true
   resourceTrackingMethod: annotation
   disableAdmin: true
+  # LoadRestrictionsNone is required because this repo's helmCharts entries
+  # (see clusters/prod-cluster-01/kustomization.yaml) reference chart
+  # values.yaml files under configuration/operators/, which live outside the
+  # cluster's own kustomization root -- kustomize's default load restrictor
+  # rejects that as a security violation. Matches the flags used by
+  # `kustomize build --enable-helm` locally and in build/validate-*.sh.
+  kustomizeBuildOptions: "--enable-alpha-plugins --enable-helm --load-restrictor LoadRestrictionsNone"
   helpChatURL: https://cloud-native.slack.com/archives/C01TSERG0KZ
   initialSSHKnownHosts: {}
   resourceExclusions: |
