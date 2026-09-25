@@ -28,3 +28,12 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      # This repo installs operators (via Subscription) and their CRs (e.g.
+      # HyperConverged, NMState, KubeDescheduler) in the same Application.
+      # Argo CD's default dry-run preflight validates every resource before
+      # applying anything, which fails for CRs whose CRD hasn't been
+      # installed by its operator yet. Skipping dry-run for resource kinds
+      # not yet present lets Namespaces/OperatorGroups/Subscriptions apply
+      # first; selfHeal then retries the CRD-dependent CRs once their
+      # operators have installed the CRDs.
+      - SkipDryRunOnMissingResource=true
