@@ -48,3 +48,26 @@ aggregationRule:
   clusterRoleSelectors:
     - matchLabels:
         rbac.authorization.k8s.io/aggregate-to-admin: "true"
+
+---
+# The two ClusterRoles above only cover namespaces/OperatorGroups/ClusterRoles.
+# This repo's Application also manages Subscriptions, operator CRs (e.g.
+# HyperConverged, NMState, KubeDescheduler), MachineConfigs, and other
+# cluster-scoped resources (Console, Group, ConsoleLink) whose API groups
+# vary per component and grow as components are added under
+# configuration/operators/. Rather than maintain an ever-expanding rule list
+# here, grant the ArgoCD application-controller service account cluster-admin
+# directly -- this is a hub/management-cluster pattern, not something to
+# replicate on a workload cluster.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Values.argocd.name }}-application-controller-cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.argocd.name }}-argocd-application-controller
+    namespace: {{ .Values.argocd.namespace }}
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
