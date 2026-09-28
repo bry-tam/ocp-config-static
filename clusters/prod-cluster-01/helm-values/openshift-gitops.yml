@@ -8,3 +8,6 @@ subscription:
 
 argocd:
   routeHost: openshift-gitops-server-openshift-gitops.apps.acm.sandbox5552.opentlc.com
+
+rbac:
+  adminGroup: bry-tam
