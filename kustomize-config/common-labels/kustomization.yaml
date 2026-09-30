@@ -9,6 +9,5 @@ kind: Component
 
 labels:
   - pairs:
-      app.kubernetes.io/managed-by: argocd
       environment: prod
     includeSelectors: false
