@@ -1,0 +1,616 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+    openshift.io/cluster-monitoring: "true"
+  name: openshift-cnv
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    argocd.argoproj.io/managed-by: openshift-gitops
+    environment: prod
+    openshift.io/cluster-monitoring: "true"
+  name: openshift-gitops
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    argocd.argoproj.io/managed-by: openshift-gitops
+    environment: prod
+    openshift.io/cluster-monitoring: "true"
+  name: openshift-gitops-operator
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+    openshift.io/cluster-monitoring: "true"
+  name: openshift-kube-descheduler-operator
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+    openshift.io/cluster-monitoring: "true"
+  name: openshift-mtv
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: openshift-nmstate
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+    openshift.io/cluster-monitoring: "true"
+  name: openshift-workload-availability
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+  name: argo-admin-controller
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - '*'
+- apiGroups:
+  - operators.coreos.com
+  resources:
+  - operatorgroups
+  verbs:
+  - '*'
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  - clusterrolebindings
+  verbs:
+  - '*'
+---
+aggregationRule:
+  clusterRoleSelectors:
+  - matchLabels:
+      rbac.authorization.k8s.io/aggregate-to-admin: "true"
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    argocd/aggregate-to-admin: "true"
+    environment: prod
+  name: openshift-gitops-controller-admin
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: openshift-gitops-application-controller-cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: openshift-gitops-argocd-application-controller
+  namespace: openshift-gitops
+---
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: openshift-gitops
+  namespace: openshift-gitops
+spec:
+  aggregatedClusterRoles: true
+  applicationSet:
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    webhookServer:
+      ingress:
+        enabled: false
+      route:
+        enabled: false
+  controller:
+    processors: {}
+    resources:
+      limits:
+        cpu: "2"
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 1Gi
+    sharding: {}
+  disableAdmin: true
+  grafana:
+    enabled: false
+    ingress:
+      enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+    route:
+      enabled: false
+  ha:
+    enabled: true
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  helpChatURL: https://cloud-native.slack.com/archives/C01TSERG0KZ
+  initialSSHKnownHosts: {}
+  kustomizeBuildOptions: --enable-alpha-plugins --enable-helm --load-restrictor LoadRestrictionsNone
+  monitoring:
+    enabled: true
+  notifications:
+    enabled: true
+  prometheus:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+  rbac:
+    defaultPolicy: readonly
+    policy: |
+      g, bry-tam, role:admin
+    scopes: '[groups]'
+  redis:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  repo:
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+  resourceExclusions: |
+    - apiGroups:
+      - tekton.dev
+      clusters:
+      - '*'
+      kinds:
+      - TaskRun
+      - PipelineRun
+  resourceTrackingMethod: annotation
+  server:
+    autoscale:
+      enabled: true
+    grpc:
+      ingress:
+        enabled: false
+    ingress:
+      enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 125m
+        memory: 128Mi
+    route:
+      enabled: true
+    service:
+      type: ""
+  sso:
+    dex:
+      openShiftOAuth: true
+      resources:
+        limits:
+          cpu: 500m
+          memory: 256Mi
+        requests:
+          cpu: 250m
+          memory: 128Mi
+    provider: dex
+  tls:
+    ca: {}
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: openshift-gitops
+spec:
+  applicationMenu:
+    section: OpenShift GitOps
+  href: https://openshift-gitops-server-openshift-gitops.apps.acm.sandbox5552.opentlc.com
+  location: ApplicationMenu
+  text: Cluster GitOps
+---
+apiVersion: forklift.konveyor.io/v1beta1
+kind: ForkliftController
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: forklift-controller
+  namespace: openshift-mtv
+spec:
+  feature_copy_offload: "true"
+  olm_managed: true
+---
+apiVersion: hco.kubevirt.io/v1beta1
+kind: HyperConverged
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: kubevirt-hyperconverged
+  namespace: openshift-cnv
+spec:
+  liveMigrationConfig:
+    completionTimeoutPerGiB: 800
+    parallelMigrationsPerCluster: 5
+    parallelOutboundMigrationsPerNode: 2
+    progressTimeout: 150
+---
+apiVersion: machine-deletion-remediation.medik8s.io/v1alpha1
+kind: MachineDeletionRemediationTemplate
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: mdr-remediation
+  namespace: openshift-workload-availability
+spec:
+  template:
+    spec: {}
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-psi-kernelarg
+spec:
+  kernelArguments:
+  - psi=1
+---
+apiVersion: nmstate.io/v1
+kind: NMState
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: nmstate
+spec:
+  probeConfiguration:
+    dns:
+      host: root-servers.net
+---
+apiVersion: operator.openshift.io/v1
+kind: KubeDescheduler
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: cluster
+  namespace: openshift-kube-descheduler-operator
+spec:
+  deschedulingIntervalSeconds: 3600
+  evictionLimits:
+    node: 2
+    total: 5
+  managementState: Managed
+  mode: Automatic
+  profiles:
+  - KubeVirtRelieveAndMigrate
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: openshift-cnv
+  namespace: openshift-cnv
+spec:
+  targetNamespaces:
+  - openshift-cnv
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: openshift-gitops-operator
+  namespace: openshift-gitops-operator
+spec: {}
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: openshift-kube-descheduler-operator
+  namespace: openshift-kube-descheduler-operator
+spec:
+  targetNamespaces:
+  - openshift-kube-descheduler-operator
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: openshift-mtv
+  namespace: openshift-mtv
+spec:
+  targetNamespaces:
+  - openshift-mtv
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: openshift-nmstate
+  namespace: openshift-nmstate
+spec: {}
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: openshift-workload-availability
+  namespace: openshift-workload-availability
+spec: {}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: kubevirt-hyperconverged
+  namespace: openshift-cnv
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: kubevirt-hyperconverged
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: openshift-gitops-operator
+  namespace: openshift-gitops-operator
+spec:
+  channel: gitops-1.21
+  installPlanApproval: Automatic
+  name: openshift-gitops-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: cluster-kube-descheduler-operator
+  namespace: openshift-kube-descheduler-operator
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: cluster-kube-descheduler-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: mtv-operator
+  namespace: openshift-mtv
+spec:
+  channel: release-v2.12
+  installPlanApproval: Automatic
+  name: mtv-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: kubernetes-nmstate-operator
+  namespace: openshift-nmstate
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: kubernetes-nmstate-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: fence-agents-remediation
+  namespace: openshift-workload-availability
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: fence-agents-remediation
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: machine-deletion-remediation
+  namespace: openshift-workload-availability
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: machine-deletion-remediation
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: node-healthcheck-operator
+  namespace: openshift-workload-availability
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: node-healthcheck-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: node-maintenance-operator
+  namespace: openshift-workload-availability
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: node-maintenance-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: self-node-remediation
+  namespace: openshift-workload-availability
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: self-node-remediation
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+---
+apiVersion: remediation.medik8s.io/v1alpha1
+kind: NodeHealthCheck
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: nodehealthcheck-snr
+spec:
+  escalatingRemediations:
+  - order: 0
+    remediationTemplate:
+      apiVersion: self-node-remediation.medik8s.io/v1alpha1
+      kind: SelfNodeRemediationTemplate
+      name: snr-outofservicetaint-template
+      namespace: openshift-workload-availability
+    timeout: 300s
+  - order: 1
+    remediationTemplate:
+      apiVersion: machine-deletion-remediation.medik8s.io/v1alpha1
+      kind: MachineDeletionRemediationTemplate
+      name: mdr-remediation
+      namespace: openshift-workload-availability
+    timeout: 300s
+  minHealthy: 51%
+  selector:
+    matchExpressions:
+    - key: node-role.kubernetes.io/worker
+      operator: Exists
+      values: []
+  unhealthyConditions:
+  - duration: 90s
+    status: "False"
+    type: Ready
+  - duration: 90s
+    status: Unknown
+    type: Ready
+---
+apiVersion: self-node-remediation.medik8s.io/v1alpha1
+kind: SelfNodeRemediationTemplate
+metadata:
+  annotations:
+    remediation.medik8s.io/multiple-templates-support: "true"
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    environment: prod
+  name: snr-outofservicetaint-template
+  namespace: openshift-workload-availability
+spec:
+  template:
+    spec:
+      remediationStrategy: OutOfServiceTaint

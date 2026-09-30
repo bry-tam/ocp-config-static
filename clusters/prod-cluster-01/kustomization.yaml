@@ -35,6 +35,7 @@ helmCharts:
   - name: descheduler
     releaseName: descheduler
     namespace: openshift-kube-descheduler-operator
+    valuesFile: helm-values/descheduler.yml
 
   - name: nmstate
     releaseName: nmstate
@@ -51,6 +52,7 @@ helmCharts:
   - name: workload-availability
     releaseName: workload-availability
     namespace: openshift-workload-availability
+    valuesFile: helm-values/workload-availability.yml
 
 components:
   - ../../kustomize-config/common-labels
