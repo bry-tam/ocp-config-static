@@ -1,0 +1,13 @@
+---
+# Per-cluster override for the configuration/operators/console-plugins
+# chart, referenced via `valuesFile:` on the `helmCharts:` entry in
+# ../kustomization.yaml. Only values that differ from the chart's own
+# values.yaml defaults need to be listed here.
+#
+# This chart now owns the cluster-scoped Console singleton's spec.plugins
+# list (see configuration/operators/console-plugins/README.md), so the
+# full-object-apply risk that previously kept this plugin disabled no
+# longer applies -- safe to enable here.
+plugins:
+  nodeRemediation:
+    enabled: true

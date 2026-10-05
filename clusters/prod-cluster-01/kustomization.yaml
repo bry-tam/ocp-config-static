@@ -52,7 +52,11 @@ helmCharts:
   - name: workload-availability
     releaseName: workload-availability
     namespace: openshift-workload-availability
-    valuesFile: helm-values/workload-availability.yml
+
+  - name: console-plugins
+    releaseName: console-plugins
+    namespace: openshift-console-operator
+    valuesFile: helm-values/console-plugins.yml
 
 components:
   - ../../kustomize-config/common-labels

@@ -1,0 +1,15 @@
+---
+# All plugins default to disabled -- per-cluster values must explicitly
+# enable each one it wants. This chart owns the cluster-scoped
+# `operator.openshift.io/v1 Console` singleton's `spec.plugins` list so that
+# no other chart needs to do a full-object apply against it (which would
+# stomp on plugins enabled by other components/operators).
+#
+# To register a new plugin: add a new key under `plugins` here (`enabled:
+# false` by default, `name:` the plugin's `ConsolePlugin` resource name) --
+# templates/console.yml picks it up automatically, no template changes
+# needed.
+plugins:
+  nodeRemediation:
+    enabled: false
+    name: node-remediation-console-plugin

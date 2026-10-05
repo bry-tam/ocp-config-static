@@ -36,13 +36,11 @@ Documentation: [latest](https://docs.redhat.com/en/documentation/workload_availa
     agent configured — this is environment-specific (depends on the
     out-of-band management hardware available) and is left unset; see the
     doc link in `templates/remediation-templates.yml`
-  - `consolePlugin.enabled` (default `true`) enables the Node Remediation
-    console plugin via a full-object apply against the cluster-scoped
-    `Console`/`cluster` singleton — this **overwrites** `spec.plugins`
-    entirely, dropping any other console plugins already enabled on the
-    cluster. Fine for a lone example cluster; on a real cluster prefer a
-    strategic-merge/JSON6902 patch against the existing `Console` object, or
-    manage `spec.plugins` centrally
+  - The Node Remediation console plugin (`node-remediation-console-plugin`)
+    is registered via the `configuration/operators/console-plugins` chart,
+    not here — see that chart for why `Console`/`cluster` plugin
+    registration is centralized instead of each component doing its own
+    full-object apply
 
 ## Implementation Details
 
@@ -55,9 +53,10 @@ commenting/uncommenting `generator.yml` entries) were consolidated into
 `templates/nodehealthcheck.yml` and `templates/remediation-templates.yml`,
 each with an `{{- if eq .Values.remediation.strategy ... }}` branch per
 variant, so the choice is a single `values.yaml` field
-(`remediation.strategy`) instead of a generator edit. The
-`node-remediation-console.yml` `Console` patch — gated in the ACM reference
-via `extraDependencies` on the NHC `OperatorPolicy` being `Compliant` (no
-equivalent ordering mechanism exists in plain Helm/kustomize) — was carried
-over as an unconditional full-object apply, gated only by
-`consolePlugin.enabled`.
+(`remediation.strategy`) instead of a generator edit. The reference's
+`node-remediation-console.yml` `Console` patch — originally gated via
+`extraDependencies` on the NHC `OperatorPolicy` being `Compliant` (no
+equivalent ordering mechanism exists in plain Helm/kustomize) — was moved
+out of this chart entirely into `configuration/operators/console-plugins`,
+which centralizes `Console`/`cluster` plugin registration across all
+components instead of each one doing its own full-object apply.

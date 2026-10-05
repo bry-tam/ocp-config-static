@@ -35,10 +35,3 @@ remediation:
     unhealthyDuration: 90s
     minHealthy: "51%"
     escalationTimeout: 300s
-
-# The Node Remediation console plugin, provided by the Node Health Check
-# Operator. See templates/node-remediation-console.yml for why this
-# defaults to true but is a real risk on a cluster with other console
-# plugins already enabled.
-consolePlugin:
-  enabled: true

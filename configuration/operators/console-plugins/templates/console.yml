@@ -1,0 +1,18 @@
+---
+{{- $plugins := list }}
+{{- range $key, $plugin := .Values.plugins }}
+{{- if $plugin.enabled }}
+{{- $plugins = append $plugins $plugin.name }}
+{{- end }}
+{{- end }}
+{{- if $plugins }}
+apiVersion: operator.openshift.io/v1
+kind: Console
+metadata:
+  name: cluster
+spec:
+  plugins:
+{{- range $plugins }}
+    - {{ . }}
+{{- end }}
+{{- end }}

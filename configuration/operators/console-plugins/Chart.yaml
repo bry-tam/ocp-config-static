@@ -1,0 +1,13 @@
+---
+apiVersion: v2
+name: console-plugins
+description: >-
+  Centrally manages the cluster-scoped `operator.openshift.io/v1 Console`
+  singleton's `spec.plugins` list. All plugins default to disabled; a
+  per-cluster values override must explicitly enable each one it wants.
+  Centralizing this avoids multiple components each doing a full-object
+  apply against the same singleton, which would overwrite plugins enabled
+  by other components.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
