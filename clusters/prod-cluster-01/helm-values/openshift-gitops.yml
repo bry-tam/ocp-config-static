@@ -7,7 +7,7 @@ subscription:
   channel: gitops-1.21
 
 argocd:
-  routeHost: openshift-gitops-server-openshift-gitops.apps.acm.sandbox5552.opentlc.com
+  routeHost: openshift-gitops-server-openshift-gitops.apps.prod-cluster-01.sandbox1676.opentlc.com
 
 rbac:
   adminGroup: bry-tam
