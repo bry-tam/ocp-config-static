@@ -1,9 +1,24 @@
 ---
 # All plugins default to disabled -- per-cluster values must explicitly
 # enable each one it wants. This chart owns the cluster-scoped
-# `operator.openshift.io/v1 Console` singleton's `spec.plugins` list so that
-# no other chart needs to do a full-object apply against it (which would
-# stomp on plugins enabled by other components/operators).
+# `operator.openshift.io/v1 Console` singleton's `spec.plugins` list.
+#
+# IMPORTANT: `spec.plugins` is a plain `[]string` with no
+# `x-kubernetes-list-type: set`/merge annotation on the CRD, so it is
+# atomic -- a full-object apply REPLACES the entire list rather than
+# merging into it. Any plugin not listed here will be dropped the next
+# time this chart's rendered Console object is applied/self-healed by
+# Argo CD, even if some other operator registered it. That means this
+# `plugins` map must enumerate every plugin that should be enabled on a
+# given cluster, including ones that other operators/CSVs auto-register
+# for themselves (e.g. `networking-console-plugin` and `monitoring-plugin`
+# ship enabled on every fresh OpenShift cluster; `nmstate-console-plugin`,
+# `kubevirt-plugin`, and `forklift-console-plugin` are auto-registered by
+# their respective operators once installed) -- NOT just the plugin(s)
+# that previously needed manual help (node remediation). Per-cluster
+# `helm-values/console-plugins.yml` files must enable every plugin that
+# operator/platform combination is expected to provide, or this chart
+# will silently disable it.
 #
 # To register a new plugin: add a new key under `plugins` here (`enabled:
 # false` by default, `name:` the plugin's `ConsolePlugin` resource name) --
@@ -13,3 +28,18 @@ plugins:
   nodeRemediation:
     enabled: false
     name: node-remediation-console-plugin
+  networking:
+    enabled: false
+    name: networking-console-plugin
+  monitoring:
+    enabled: false
+    name: monitoring-plugin
+  nmstate:
+    enabled: false
+    name: nmstate-console-plugin
+  kubevirt:
+    enabled: false
+    name: kubevirt-plugin
+  forklift:
+    enabled: false
+    name: forklift-console-plugin

@@ -4,10 +4,31 @@
 # ../kustomization.yaml. Only values that differ from the chart's own
 # values.yaml defaults need to be listed here.
 #
-# This chart now owns the cluster-scoped Console singleton's spec.plugins
-# list (see configuration/operators/console-plugins/README.md), so the
-# full-object-apply risk that previously kept this plugin disabled no
-# longer applies -- safe to enable here.
+# This chart fully owns (and REPLACES) the cluster-scoped Console
+# singleton's spec.plugins list -- see the warning in
+# configuration/operators/console-plugins/values.yaml. Every plugin that
+# should be active on this cluster must be explicitly enabled here, even
+# ones auto-registered by other operators/the platform itself, or they
+# will be dropped the next time Argo CD applies/self-heals this chart.
+#
+# - networking, monitoring: ship enabled by default on every OpenShift
+#   cluster (not tied to a Subscription in this repo)
+# - nmstate, kubevirt, forklift: auto-registered by the nmstate,
+#   virtualization, and migration-toolkit-virtualization operators
+#   installed by this cluster's kustomization.yaml
+# - nodeRemediation: from workload-availability's Node Health Check
+#   Operator; previously left disabled due to the full-object-apply risk,
+#   now safe to enable since this chart centralizes that risk correctly
 plugins:
   nodeRemediation:
+    enabled: true
+  networking:
+    enabled: true
+  monitoring:
+    enabled: true
+  nmstate:
+    enabled: true
+  kubevirt:
+    enabled: true
+  forklift:
     enabled: true
